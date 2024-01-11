@@ -1,5 +1,5 @@
 from django.conf import settings
-import razorpay
+# import razorpay
 from django.http import JsonResponse
 from . forms import CustomerProfileForms, CustomerRegistrationForm
 from django.db.models import Count
@@ -7,7 +7,8 @@ from django.shortcuts import render, redirect
 # from django.http import HttpResponse
 from django.views import View
 # from urllib import request
-from . models import Cart, Customer, OrderPlaced, Payment, Product, Wishlist
+from . models import Cart, Customer,  Product, Wishlist
+# OrderPlaced, Payment,
 from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required 
@@ -205,42 +206,42 @@ class checkout(View):
             famount = famount + value
         totalamount = famount * 1.13 + 40
         razoramount = int(totalamount * 100)
-        client = razorpay.Client(auth=(settings.RAZOR_KEY_ID,settings.RAZOR_KEY_SECRET))
+        # client = razorpay.Client(auth=(settings.RAZOR_KEY_ID,settings.RAZOR_KEY_SECRET))
         data = {"amount": razoramount, 'currency':'INR', 'receipt':'oredr_rcptid_11'}
-        payment_response = client.order.create(data=data)
-        print(payment_response)
+        # payment_response = client.order.create(data=data)
+        # print(payment_response)
         # {'id': 'order_N9spnTJkHxjF2T', 'entity': 'order', 'amount': 42646, 'amount_paid': 0, 'amount_due': 42646, 'currency': 'INR', 'receipt': 'oredr_rcptid_11', 'offer_id': None, 'status': 'created', 'attempts': 0, 'notes': [], 'created_at': 1702045560}
-        order_id =payment_response['id']
-        order_status = payment_response['status']
-        if order_status == 'created':
-            payment = Payment(
-                user=user,
-                amount=totalamount,
-                razorpay_order_id=order_id,
-                razorpay_payment_status=order_status
-            )
-            payment.save()
+        # order_id =payment_response['id']
+        # order_status = payment_response['status']
+        # if order_status == 'created':
+        #     payment = Payment(
+        #         user=user,
+        #         amount=totalamount,
+        #         razorpay_order_id=order_id,
+        #         razorpay_payment_status=order_status
+        #     )
+            # payment.save()
         return render(request, 'app/checkout.html',locals()) 
 
-@login_required
-def payment_done(request):
-    order_id=request.GET.get('order_id')
-    payment_id=request.GET.get('payment_id')
-    cust_id=request.GET.get('cust_id')
-    user=request.user
-    # return redirect("orders")
-    customer=Customer.objects.get(id=cust_id)
-    # to update payment status and payment id
-    payment=Payment.objects.get(razorpay_order_id=order_id)
-    payment.paid=True
-    payment.razorpay_payment_id = payment_id
-    payment.save()
-    # to save order details
-    cart=Cart.objects.filter(user=user)
-    for c in cart:
-        OrderPlaced(user=user,customer=customer,product=c.product,quantity=c.quantity,payment=payment).save()
-        c.delete()
-    return redirect('orders')
+# @login_required
+# def payment_done(request):
+#     order_id=request.GET.get('order_id')
+#     payment_id=request.GET.get('payment_id')
+#     cust_id=request.GET.get('cust_id')
+#     user=request.user
+#     # return redirect("orders")
+#     customer=Customer.objects.get(id=cust_id)
+#     # to update payment status and payment id
+#     payment=Payment.objects.get(razorpay_order_id=order_id)
+#     payment.paid=True
+#     payment.razorpay_payment_id = payment_id
+#     payment.save()
+#     # to save order details
+#     cart=Cart.objects.filter(user=user)
+#     for c in cart:
+#         OrderPlaced(user=user,customer=customer,product=c.product,quantity=c.quantity,payment=payment).save()
+#         c.delete()
+#     return redirect('orders')
 
 @login_required
 def plus_cart(request):
@@ -311,7 +312,7 @@ def orders(request):
     if request.user.is_authenticated:
         totalitem=len(Cart.objects.filter(user=request.user))
         wishitem=len(Wishlist.objects.filter(user=request.user))
-    order_placed=OrderPlaced.objects.filter(user=request.user)
+    # order_placed=OrderPlaced.objects.filter(user=request.user)
     return render(request, 'app/order.html',locals())
 
 @login_required
